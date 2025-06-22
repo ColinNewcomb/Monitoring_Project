@@ -1,0 +1,51 @@
+import time
+import collections
+from data_collector import get_system_metrics
+import anomaly_detector
+
+window_size = 60 # Default Window Size
+class Monitor:
+    def __init__(self):
+        self.metrics = collections.deque(maxlen=window_size) # Deque to store metrics with a fixed size
+        self.start_time = time.time() # Record the start time of the monitor
+
+    def collect_metrics(self):
+        current_metrics = get_system_metrics() # Collect current metrics
+        self.metrics.append(current_metrics) # Append to the deque, automatically removing oldest metrics if window size exceeded
+        print(f"[{len(self.metrics)}/{window_size}] Latest: {self.metrics[-1]}")
+
+
+    def get_metrics(self):
+        return list(self.metrics) #Returns the collected metrics as a list
+    
+    def get_latest_metrics(self): 
+        return self.metrics[-1] if self.metrics else None #Returns latest Metrics
+
+    def run(self, interval=5):
+        while True:
+            self.collect_metrics()
+            if len(self.metrics) >= window_size:
+                anaomaly_detector.fit(self.metrics)
+                if not anaomaly_detector.trained:
+                    anaomaly_detector.fit(self.metrics)  # Train the anomaly detector with the current metrics
+                    
+                latest_metrics = self.get_latest_metrics()
+                if anaomaly_detector.predict(latest_metrics):
+                    print(f"Anomaly detected at {latest_metrics['time_stamp']}! Metrics: {latest_metrics}")
+            time.sleep(interval)  # Collect metrics every 'interval' seconds
+            
+if __name__ == "__main__":
+    monitor = Monitor()
+    anaomaly_detector = anomaly_detector.AnomalyDetector(0.05)
+    print(f"Starting system monitoring with a {window_size}-second rolling window...\n")
+
+    try:
+        monitor.run()
+    except KeyboardInterrupt:
+        print("\nStopped monitoring.")
+        print(f"Collected {len(monitor.get_metrics())} data points.")
+        latest = monitor.get_latest_metrics()
+        if latest:
+            print("Last collected metrics:")
+            print(latest)
+
