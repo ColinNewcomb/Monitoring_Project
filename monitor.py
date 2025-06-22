@@ -21,19 +21,27 @@ class Monitor:
     def get_latest_metrics(self): 
         return self.metrics[-1] if self.metrics else None #Returns latest Metrics
 
-    def run(self, interval=5):
+    def run(self, interval=0.5):
         while True:
             self.collect_metrics()
+            timer = time.time()
             if len(self.metrics) >= window_size:
-                anaomaly_detector.fit(self.metrics)
+                if anaomaly_detector.trained and timer > 30:
+                    anaomaly_detector.fit(self.metrics)
+                    timer = time.time() # Reset timer after fitting the model
+                
                 if not anaomaly_detector.trained:
                     anaomaly_detector.fit(self.metrics)  # Train the anomaly detector with the current metrics
+                    timer = time.time()  # Reset timer after fitting the model
                     
                 latest_metrics = self.get_latest_metrics()
+                
                 if anaomaly_detector.predict(latest_metrics):
                     print(f"Anomaly detected at {latest_metrics['time_stamp']}! Metrics: {latest_metrics}")
             time.sleep(interval)  # Collect metrics every 'interval' seconds
-            
+          
+          
+  
 if __name__ == "__main__":
     monitor = Monitor()
     anaomaly_detector = anomaly_detector.AnomalyDetector(0.05)

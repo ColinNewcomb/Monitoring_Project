@@ -14,7 +14,7 @@ class AnomalyDetector:
         data = []
         for i in window:
             # Extract relevant features from the metrics
-            metrics = [i['cpu_usage'], i['memory_info'], i['disk_info'], i['network_sent'], i['network_recv']]
+            metrics = [i['cpu_usage'], i['memory_info'], i['disk_info']] #i['network_sent'], i['network_recv']]
             data.append(metrics)
         self.model.fit(data)  # Fit the model with the data
         self.trained = True  # Set the trained flag to True after fitting
@@ -22,7 +22,7 @@ class AnomalyDetector:
     def predict(self, metrics):
         if not self.trained:
             raise ValueError("Model has not been trained yet. Call fit() before predict().")
-        metrics = [[metrics['cpu_usage'], metrics['memory_info'], metrics['disk_info'], metrics['network_sent'], metrics['network_recv']]]
+        metrics = [[metrics['cpu_usage'], metrics['memory_info'], metrics['disk_info']]] #metrics['network_sent'], metrics['network_recv']]]
         prediction = self.model.predict(metrics)  # Predict anomalies
         if prediction[0] == -1:
             return True  # Anomaly detected
