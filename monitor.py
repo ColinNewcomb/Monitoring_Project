@@ -20,7 +20,7 @@ class Monitor:
     
     def get_latest_metrics(self): 
         return self.metrics[-1] if self.metrics else None #Returns latest Metrics
-
+    #outline this with Prometheus later
     def run(self, interval=1):
         while True:
             self.collect_metrics()
