@@ -8,6 +8,7 @@ class Monitor:
     def __init__(self):
         self.metrics = collections.deque(maxlen=window_size) # Deque to store metrics with a fixed size
         self.start_time = time.time() # Record the start time of the monitor
+        self.window_size = window_size # Set the window size for metrics collection
 
     def collect_metrics(self):
         current_metrics = get_system_metrics() # Collect current metrics
