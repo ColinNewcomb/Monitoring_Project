@@ -22,23 +22,22 @@ class Monitor:
         return self.metrics[-1] if self.metrics else None #Returns latest Metrics
     #outline this with Prometheus later
     def run(self, interval=1):
+        last_train_time = 0
         while True:
             self.collect_metrics()
             timer = time.time()
-            last_train_time = 0
             if len(self.metrics) >= window_size:
-                if anaomaly_detector.trained and timer - last_train_time >= 30:
-                    anaomaly_detector.fit(self.metrics)
-                    print(f"Timer: {timer} seconds. Model Trained")
-                    timer = time.time()  # Reset timer after training
-                    last_train_time = timer
-
                 
                 if not anaomaly_detector.trained:
                     anaomaly_detector.fit(self.metrics)  # Train the anomaly detector with the current metrics
                     print(f"Timer: {timer} seconds. Model Trained")
-                    timer = time.time()  # Reset timer after training
                     last_train_time = timer  # Record the time when the model was last trained
+                    
+                elif timer - last_train_time >= 30:
+                    anaomaly_detector.fit(self.metrics)
+                    print(f"Timer: {timer} seconds. Model Trained")
+                    timer = time.time()  # Reset timer after training
+                    last_train_time = timer
                     
                 latest_metrics = self.get_latest_metrics()
                 
