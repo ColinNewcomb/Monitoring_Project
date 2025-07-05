@@ -51,8 +51,7 @@ def metrics():
     else:
         latest_metrics = monitor.get_latest_metrics()
         is_anomaly = current_anomaly_state
-
-    # Step 3: Return Prometheus-compatible metrics
+    
     if latest_metrics is None:
         latest_metrics = {
             "cpu_usage": 0,
@@ -72,6 +71,7 @@ def metrics():
         anomaly = int(current_anomaly_state),
         time_stamp = timestamp_value
     )
+    
     database.add(metric_record)
     database.commit()
     database.close()
@@ -100,3 +100,63 @@ def get_history(limit: int = 50, database: SessionLocal = Depends(get_database))
             "anomaly": bool(metric.anomaly)
         })
     return JSONResponse(content=history)
+
+@app.get("/anaomaly")
+def get_anomaly_state():
+    """
+    Get the current anomaly state.
+    """
+    global current_anomaly_state
+
+    return JSONResponse(content={"anomaly": current_anomaly_state})
+
+@app.get("/anomalies/history")
+def get_anomalies_history(limit: int = 50, database: SessionLocal = Depends(get_database)):
+    """
+    Retrieve the last 'limit' anomaly records from the database.
+    """
+    anomalies = database.query(SystemMetrics).filter(SystemMetrics.anomaly == True).order_by(SystemMetrics.time_stamp.desc()).limit(limit).all()
+    
+    history = []
+    for anomaly in anomalies:
+        history.append({
+            "time_stamp": anomaly.time_stamp.isoformat(),
+            "cpu_usage": anomaly.cpu_usage,
+            "memory_info": anomaly.memory_info,
+            "disk_info": anomaly.disk_info,
+            "anomaly": bool(anomaly.anomaly)
+        })
+    return JSONResponse(content=history)
+
+@app.get("/download")
+def download_history(database: SessionLocal = Depends(get_database)):
+    """
+    Download the entire history of system metrics as a JSON file.
+    """
+    metrics = database.query(SystemMetrics).all()
+    
+    history = []
+    for metric in metrics:
+        history.append({
+            "time_stamp": metric.time_stamp.isoformat(),
+            "cpu_usage": metric.cpu_usage,
+            "memory_info": metric.memory_info,
+            "disk_info": metric.disk_info,
+            "anomaly": bool(metric.anomaly)
+        })
+    
+    return JSONResponse(content=history)
+
+@app.get("/status")
+def get_status():
+    """
+    Get the current status of the monitoring system.
+    """
+    global current_anomaly_state
+    return JSONResponse(content={
+        "monitoring": True,
+        "anomaly_detected": current_anomaly_state,
+        "last_train_time": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(monitor.start_time))
+    })
+    
+#@app.get("/config")

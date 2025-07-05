@@ -10,6 +10,8 @@ def get_system_metrics():
     metrics['cpu_usage'] = psutil.cpu_percent(interval=1) # CPU usage percentage
     metrics['memory_info'] = psutil.virtual_memory().percent # Memory usage percentage
     metrics['disk_info'] = psutil.disk_usage('C:\\').percent # Disk usage percentage
+    
+    # Uncomment the following lines if you want to collect additional metrics
     #metrics['network_sent'] = psutil.net_io_counters().bytes_sent # Network bytes sent
     #metrics['network_recv'] = psutil.net_io_counters().bytes_recv # Network bytes received
     #metrics['boot_time'] = psutil.boot_time() # System boot time in seconds since epoch
