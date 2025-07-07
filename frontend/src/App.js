@@ -2,6 +2,10 @@ import React from "react";
 import "./App.css";
 import AnomalyStatus from "./components/AnomalyStatus";
 import LiveMetrics from "./components/LiveMetrics";
+import DownloadButton from "./components/DownloadButton";
+import DownloadAnomalyHistory from "./components/DownloadAnomalyHistory";
+import HistoryChart from "./components/LiveChart";
+import LiveChart from "./components/LiveChart";
 
 function App() {
   return (
@@ -9,6 +13,15 @@ function App() {
       <h1>Monitoring Dashboard</h1>
       <AnomalyStatus />
       <LiveMetrics />
+      <DownloadButton />
+      <DownloadAnomalyHistory />
+      <LiveChart />
+      
+      {/* DownloadButton component can be added here if needed */}
+      {/* <DownloadButton /> */}
+      {/* Add more components as needed */}
+      {/* You can add more components here as needed */}
+      {/* Add more components later */}
       {/* You can add more components here as needed */}
       {/* Add more components later */}
     </div>

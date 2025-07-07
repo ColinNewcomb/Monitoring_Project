@@ -3,13 +3,23 @@ from datetime import datetime
 from anomaly_detector import AnomalyDetector
 import time
 from fastapi import FastAPI
+from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from database import init_database
 from fastapi import Depends
 from database import SessionLocal, SystemMetrics
+from fastapi.middleware.cors import CORSMiddleware
+
 
 init_database()  # Initialize the database
 app = FastAPI() # Create FastAPI app instance
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # You can restrict this to ["http://localhost:3000"] if you want
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 monitor = Monitor() # Initialize the Monitor instance
 anomaly_detector = AnomalyDetector() # Initialize the AnomalyDetector instance
 last_train_time = 0 # Last time the model was trained
@@ -103,17 +113,13 @@ def get_history(limit: int = 50, database: SessionLocal = Depends(get_database))
 """Get the current anomaly state."""
 @app.get("/anaomaly")
 def get_anomaly_state():
-    """
-    Get the current anomaly state.
-    """
+    
     global current_anomaly_state # Current anomaly state
-
-
     return JSONResponse(content={"anomaly": current_anomaly_state}) # Returns the current anomaly state as a JSON response
 
 """Retrieve the last 'limit' anomaly records from the database."""
 @app.get("/anomalies/history")
-def get_anomalies_history(limit: int = 50, database: SessionLocal = Depends(get_database)):
+def get_anomalies_history(limit: int = 50, database: Session = Depends(get_database)):
     
     # Retrieve the last 'limit' anomaly records from the database
     anomalies = database.query(SystemMetrics).filter(SystemMetrics.anomaly == True).order_by(SystemMetrics.time_stamp.desc()).limit(limit).all()
@@ -131,7 +137,8 @@ def get_anomalies_history(limit: int = 50, database: SessionLocal = Depends(get_
 
 """Download the entire history of system metrics as a JSON file."""
 @app.get("/download")
-def download_history(database: SessionLocal = Depends(get_database)):
+
+def download_history(database: Session = Depends(get_database)):
     
     metrics = database.query(SystemMetrics).all() # Retrieve all system metrics records from the database
     

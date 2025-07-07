@@ -7,24 +7,24 @@ function LiveMetrics() {
   const [diskInfo, setDiskInfo] = useState(0);
 
   useEffect(() => {
-  const fetchMetrics = () => {
-    fetch("http://localhost:8000/metrics")
-      .then((response) => response.json())
-      .then((data) => {
-        setCpuUsage(data.cpu_usage);
-        setMemoryInfo(data.memory_info);
-        setDiskInfo(data.disk_info);
-      })
-      .catch((error) => console.error("Error fetching metrics:", error));
-  };
+    // Function to fetch metrics
+    const fetchMetrics = () => {
+      fetch("http://localhost:8000/metrics")
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Metrics fetched successfully:", data);
+          setCpuUsage(data.cpu_usage);
+          setMemoryInfo(data.memory_info);
+          setDiskInfo(data.disk_info);
+        })
+        .catch((error) => console.error("Error fetching metrics:", error));
+    };
 
-  fetchMetrics(); // fetch immediately first
+    fetchMetrics();
+    const interval = setInterval(fetchMetrics, 5000);
 
-  const interval = setInterval(fetchMetrics, 5000); // fetch every 5 seconds
-
-  return () => clearInterval(interval); // cleanup when component unmounts
-}, []);
-      
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, []);  
 
   return (
     <div>
