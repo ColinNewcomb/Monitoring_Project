@@ -4,8 +4,8 @@ import AnomalyStatus from "./components/AnomalyStatus";
 import LiveMetrics from "./components/LiveMetrics";
 import DownloadButton from "./components/DownloadButton";
 import DownloadAnomalyHistory from "./components/DownloadAnomalyHistory";
-import HistoryChart from "./components/LiveChart";
 import LiveChart from "./components/LiveChart";
+import RecentAnomalies from "./components/RecentAnomalies";
 
 function App() {
   return (
@@ -16,6 +16,7 @@ function App() {
       <DownloadButton />
       <DownloadAnomalyHistory />
       <LiveChart />
+      <RecentAnomalies />
       
       {/* DownloadButton component can be added here if needed */}
       {/* <DownloadButton /> */}

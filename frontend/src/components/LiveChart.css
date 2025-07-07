@@ -1,0 +1,9 @@
+.live-chart-container {
+  width: 800px;
+  height: 400px;
+}
+.chart-container {
+    position: absolute;
+    top: 0px;
+    left: 50px;
+}

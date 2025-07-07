@@ -1,0 +1,23 @@
+.recent-anomalies {
+  background-color: #222;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto; /* enables scrolling if list grows */
+}
+
+.recent-anomalies h3 {
+  margin-top: 0;
+}
+
+.recent-anomalies ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.recent-anomalies li {
+  margin-bottom: 0.5rem;
+  padding: 0.3rem;
+  border-bottom: 1px solid #444;
+}

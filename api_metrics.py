@@ -110,12 +110,44 @@ def get_history(limit: int = 50, database: SessionLocal = Depends(get_database))
         })
     return JSONResponse(content=history) # Return the history of metrics as a JSON response
 
-"""Get the current anomaly state."""
-@app.get("/anaomaly")
-def get_anomaly_state():
+@app.get("/anomaly")
+def get_current_anomaly(database: Session = Depends(get_database)):
+    global current_anomaly_state
     
-    global current_anomaly_state # Current anomaly state
-    return JSONResponse(content={"anomaly": current_anomaly_state}) # Returns the current anomaly state as a JSON response
+    # Retrieve the latest system metrics record from the database
+    latest_metric = database.query(SystemMetrics).order_by(SystemMetrics.time_stamp.desc()).first()
+    if latest_metric is None:
+        return JSONResponse(content={"error": "No metrics found"}, status_code=404)
+    # Create a dictionary for the latest metric record
+    if latest_metric.anomaly != True:
+        current_anomaly_state = False
+        return JSONResponse(content={"anomaly": False, "message": "No anomaly detected"})
+    else:
+        current_anomaly_state = True
+        return JSONResponse(content={
+            "time_stamp": latest_metric.time_stamp.isoformat(),
+            "cpu_usage": latest_metric.cpu_usage,
+            "memory_info": latest_metric.memory_info,
+            "disk_info": latest_metric.disk_info,
+            "anomaly": bool(latest_metric.anomaly)
+        })
+    
+@app.get("/recent_anomalies")
+def get_previous_anomalies(limit: int = 5, database: Session = Depends(get_database)):
+    
+    anomalies = database.query(SystemMetrics).filter(SystemMetrics.anomaly == True).order_by(SystemMetrics.time_stamp.desc()).limit(limit).all()
+    
+    prev = []
+    for anomaly in anomalies: # Iterate through each anomaly record
+        prev.append({ # Create a dictionary for each anomaly record
+            "time_stamp": anomaly.time_stamp.isoformat(),
+            "cpu_usage": anomaly.cpu_usage,
+            "memory_info": anomaly.memory_info,
+            "disk_info": anomaly.disk_info,
+            "anomaly": bool(anomaly.anomaly)
+        })
+        
+    return JSONResponse(content={"anomaly": prev}) # Returns the current anomaly state as a JSON response
 
 """Retrieve the last 'limit' anomaly records from the database."""
 @app.get("/anomalies/history")
