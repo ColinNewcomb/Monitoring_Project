@@ -9,62 +9,58 @@ from fastapi import Depends
 from database import SessionLocal, SystemMetrics
 
 init_database()  # Initialize the database
-app = FastAPI()
-monitor = Monitor()
-anomaly_detector = AnomalyDetector()
-last_train_time = 0
-current_anomaly_state = False
+app = FastAPI() # Create FastAPI app instance
+monitor = Monitor() # Initialize the Monitor instance
+anomaly_detector = AnomalyDetector() # Initialize the AnomalyDetector instance
+last_train_time = 0 # Last time the model was trained
+current_anomaly_state = False # Current anomaly state
 
 # Dependency to get a DB session
-def get_database():
-    database = SessionLocal()
+def get_database(): 
+    database = SessionLocal() # Create a new database session
     try:
-        yield database
+        yield database # Yield the database session for use in the route
     finally:
-        database.close()
-        
+        database.close() # Close the database session after use
+ 
 @app.get("/metrics")
 def metrics():
-    global last_train_time
-    global current_anomaly_state
-
+    global last_train_time # Last time the model was trained
+    global current_anomaly_state # Current anomaly state
+    database = SessionLocal() # Get a new database session
+    monitor.collect_metrics() # Collect system metrics
+    current_time = time.time() # Get the current time
     
-    database = SessionLocal()
-
-    #Current System Metrics
-    monitor.collect_metrics()
-    current_time = time.time()
-    
-    #Checks ML Data
-    if len(monitor.metrics) >= monitor.window_size:
-        if not anomaly_detector.trained:
-            anomaly_detector.fit(monitor.metrics)
-            last_train_time = current_time
-        elif current_time - last_train_time >= 30:
-            anomaly_detector.fit(monitor.metrics)
-            last_train_time = current_time
+    if len(monitor.metrics) >= monitor.window_size: # If enough data is collected
+        if not anomaly_detector.trained: # If the model is not trained yet
+            anomaly_detector.fit(monitor.metrics) # Train the model with the collected metrics
+            last_train_time = current_time # Update the last training time
+        elif current_time - last_train_time >= 30: # If enough time has passed since the last training
+            anomaly_detector.fit(monitor.metrics) # Re-train the model with the collected metrics
+            last_train_time = current_time # Update the last training time
         
-        latest_metrics = monitor.get_latest_metrics()
-        is_anomaly = anomaly_detector.predict(latest_metrics)
-        current_anomaly_state = is_anomaly
+        latest_metrics = monitor.get_latest_metrics() # Get the latest metrics
+        is_anomaly = anomaly_detector.predict(latest_metrics) # Predict if the latest metrics are an anomaly
+        current_anomaly_state = is_anomaly # Update the current anomaly state
         
     else:
-        latest_metrics = monitor.get_latest_metrics()
-        is_anomaly = current_anomaly_state
+        latest_metrics = monitor.get_latest_metrics() # Get the latest metrics without prediction
+        current_anomaly_state = False # Update the current anomaly state
+         
     
-    if latest_metrics is None:
-        latest_metrics = {
+    if latest_metrics is None: # If no metrics are collected yet
+        latest_metrics = { # Default metrics if none are collected
             "cpu_usage": 0,
             "memory_info": 0,
             "disk_info": 0,
             "time_stamp": "N/A"
         }
-    if latest_metrics['time_stamp'] != "N/A":
-        timestamp_value = datetime.fromisoformat(latest_metrics['time_stamp'])
+    if latest_metrics['time_stamp'] != "N/A": # If a timestamp is available
+        timestamp_value = datetime.fromisoformat(latest_metrics['time_stamp']) # Convert the timestamp to a datetime object
     else:
-        timestamp_value = None
-    # Initialize the database
-    metric_record = SystemMetrics(
+        timestamp_value = None # If no timestamp is available, set it to None
+    
+    metric_record = SystemMetrics( # Create a new SystemMetrics record
         cpu_usage = latest_metrics['cpu_usage'],
         memory_info = latest_metrics['memory_info'],
         disk_info = latest_metrics['disk_info'],
@@ -72,10 +68,12 @@ def metrics():
         time_stamp = timestamp_value
     )
     
-    database.add(metric_record)
-    database.commit()
-    database.close()
-    return JSONResponse(content={
+    database.add(metric_record) # Add the record to the database session
+    database.commit() # Commit the changes to the database
+    database.close() # Close the database session
+
+
+    return JSONResponse(content={ # Return the latest metrics and anomaly state
         "cpu_usage": latest_metrics['cpu_usage'],
         "memory_info": latest_metrics['memory_info'],
         "disk_info": latest_metrics['disk_info'],
@@ -83,75 +81,75 @@ def metrics():
         "anomaly": current_anomaly_state
     })
     
+
+"""Retrieve the last 'limit' system metrics records from the database."""
 @app.get("/history")
 def get_history(limit: int = 50, database: SessionLocal = Depends(get_database)): # type: ignore
-    """
-    Retrieve the last 'limit' system metrics records from the database.
-    """
-    metrics = database.query(SystemMetrics).order_by(SystemMetrics.time_stamp.desc()).limit(limit).all()
+
+    # Retrieve the last 'limit' system metrics records from the database
+    metrics = database.query(SystemMetrics).order_by(SystemMetrics.time_stamp.desc()).limit(limit).all() 
     
-    history = []
-    for metric in metrics:
-        history.append({
+    history = [] # Initialize an empty list to store the history of metrics
+    for metric in metrics: # Iterate through each metric record
+        history.append({ # Create a dictionary for each metric record
             "time_stamp": metric.time_stamp.isoformat(),
             "cpu_usage": metric.cpu_usage,
             "memory_info": metric.memory_info,
             "disk_info": metric.disk_info,
             "anomaly": bool(metric.anomaly)
         })
-    return JSONResponse(content=history)
+    return JSONResponse(content=history) # Return the history of metrics as a JSON response
 
+"""Get the current anomaly state."""
 @app.get("/anaomaly")
 def get_anomaly_state():
     """
     Get the current anomaly state.
     """
-    global current_anomaly_state
+    global current_anomaly_state # Current anomaly state
 
-    return JSONResponse(content={"anomaly": current_anomaly_state})
 
+    return JSONResponse(content={"anomaly": current_anomaly_state}) # Returns the current anomaly state as a JSON response
+
+"""Retrieve the last 'limit' anomaly records from the database."""
 @app.get("/anomalies/history")
 def get_anomalies_history(limit: int = 50, database: SessionLocal = Depends(get_database)):
-    """
-    Retrieve the last 'limit' anomaly records from the database.
-    """
+    
+    # Retrieve the last 'limit' anomaly records from the database
     anomalies = database.query(SystemMetrics).filter(SystemMetrics.anomaly == True).order_by(SystemMetrics.time_stamp.desc()).limit(limit).all()
     
-    history = []
-    for anomaly in anomalies:
-        history.append({
+    history = [] #Initialize an empty list to store the history of anomalies
+    for anomaly in anomalies: # Iterate through each anomaly record
+        history.append({ # Create a dictionary for each anomaly record
             "time_stamp": anomaly.time_stamp.isoformat(),
             "cpu_usage": anomaly.cpu_usage,
             "memory_info": anomaly.memory_info,
             "disk_info": anomaly.disk_info,
             "anomaly": bool(anomaly.anomaly)
         })
-    return JSONResponse(content=history)
+    return JSONResponse(content=history) #Return the history of anomalies as a JSON response
 
+"""Download the entire history of system metrics as a JSON file."""
 @app.get("/download")
 def download_history(database: SessionLocal = Depends(get_database)):
-    """
-    Download the entire history of system metrics as a JSON file.
-    """
-    metrics = database.query(SystemMetrics).all()
     
-    history = []
-    for metric in metrics:
-        history.append({
+    metrics = database.query(SystemMetrics).all() # Retrieve all system metrics records from the database
+    
+    history = [] # Initialize an empty list to store the history of metrics
+    for metric in metrics: # Iterate through each metric record
+        history.append({ # Create a dictionary for each metric record
             "time_stamp": metric.time_stamp.isoformat(),
             "cpu_usage": metric.cpu_usage,
             "memory_info": metric.memory_info,
             "disk_info": metric.disk_info,
             "anomaly": bool(metric.anomaly)
         })
-    
-    return JSONResponse(content=history)
+    return JSONResponse(content=history) # Return the history of metrics as a JSON response
 
+"""Get the current status of the monitoring system."""
 @app.get("/status")
 def get_status():
-    """
-    Get the current status of the monitoring system.
-    """
+    
     global current_anomaly_state
     return JSONResponse(content={
         "monitoring": True,
