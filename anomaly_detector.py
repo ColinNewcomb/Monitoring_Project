@@ -1,7 +1,10 @@
 import collections
+
+from sklearn import metrics
 import monitor
 import time
 from sklearn.ensemble import IsolationForest
+import numpy as np
 
 class AnomalyDetector:
     def __init__(self,contaminatin=0.05):
@@ -27,4 +30,22 @@ class AnomalyDetector:
         if prediction[0] == -1:
             return True  # Anomaly detected
         return False  # No anomaly detected
+    
+    def anomaly_reason(self, window, latest_metrics):
+        metrics = ['cpu_usage', 'memory_info', 'disk_info']
         
+        data = []
+        for m in window:
+            try:
+                data.append([float(m[name]) for name in metrics])
+            except(KeyError, TypeError, ValueError):
+                continue
+        if not data or not latest_metrics:
+            return None, None
+        means = np.mean(data, axis=0)
+        try:
+            diffs = [abs(float(latest_metrics[name]) - mean) for name, mean in zip(metrics, means)]
+        except (KeyError, TypeError, ValueError):
+            return None, None
+        max_diff_index = diffs.index(max(diffs))
+        return metrics[max_diff_index], diffs[max_diff_index]

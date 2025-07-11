@@ -47,25 +47,50 @@ h1 {
 }
 
 .dashboard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .main-content {
   display: grid;
-  grid-template-columns: 800px 280px; /* left-panel now on the right */
-  gap: 20px;
-  width: fit-content;
+  grid-template-columns: 350px minmax(600px, 1fr) 350px;
+  gap: 30px;
   margin-top: 20px;
-  align-items: start;
+}
+
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  left: -110px; /* Move 100px to the left */
+}
+
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  left: -40px; /* Move 70px upward */
 }
 
 .right-panel {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  position: relative;
+  left: 25px;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 15px;
+  margin-left: 25px; /* Move buttons 20px to the right */
   width: 100%;
+  justify-content: center; /* Center the buttons horizontally */
 }
 
 /* Responsive adjustments */

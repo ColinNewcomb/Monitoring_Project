@@ -22,26 +22,28 @@ function RecentAnomalies() {
   }, []);
 
   return (
-    <div className="recent-anomalies">
-      <h3>Recent Anomalies</h3>
-      <AnimatePresence>
-        {anomalies.length > 0 ? (
-          <ul>
-            {anomalies.map((anomaly, index) => (
-              <motion.li
-                key={index}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-              >
-                Time: {new Date(anomaly.time_stamp).toLocaleTimeString()} — CPU: {anomaly.cpu_usage}% — Memory: {anomaly.memory_info}% — Disk: {anomaly.disk_info}%
-              </motion.li>
-            ))}
-          </ul>
-        ) : (
-          <p>No recent anomalies found.</p>
-        )}
-      </AnimatePresence>
+    <div className="">
+      <div className="recent-anomalies">
+       <h3>Recent Anomalies</h3>
+        <AnimatePresence>
+         {anomalies.length > 0 ? (
+           <ul>
+              {anomalies.map((anomaly, index) => (
+               <motion.li
+                  key={index}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                >
+                 Time: {new Date(anomaly.time_stamp).toLocaleTimeString()} — {anomaly.anomaly_cause.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}: {anomaly[anomaly.anomaly_cause]}% — Deviation: {anomaly.anomaly_deviation.toFixed(2)}
+                </motion.li>
+              ))}
+            </ul>
+          ) : (
+            <p>No recent anomalies found.</p>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

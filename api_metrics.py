@@ -9,7 +9,8 @@ from database import init_database
 from fastapi import Depends
 from database import SessionLocal, SystemMetrics
 from fastapi.middleware.cors import CORSMiddleware
-
+import numpy as np
+import json
 
 init_database()  # Initialize the database
 app = FastAPI() # Create FastAPI app instance
@@ -53,9 +54,18 @@ def metrics():
         is_anomaly = anomaly_detector.predict(latest_metrics) # Predict if the latest metrics are an anomaly
         current_anomaly_state = is_anomaly # Update the current anomaly state
         
+        anomaly_cause = None
+        anomaly_deviation = None
+        
+        if is_anomaly: # If an anomaly is detected
+            cause, deviation = anomaly_detector.anomaly_reason(monitor.metrics, latest_metrics)
+            anomaly_cause = cause # Get the cause of the anomaly
+            anomaly_deviation = deviation # Get the deviation of the anomaly
     else:
         latest_metrics = monitor.get_latest_metrics() # Get the latest metrics without prediction
         current_anomaly_state = False # Update the current anomaly state
+        anomaly_cause = None
+        anomaly_deviation = None
          
     
     if latest_metrics is None: # If no metrics are collected yet
@@ -64,6 +74,7 @@ def metrics():
             "memory_info": 0,
             "disk_info": 0,
             "time_stamp": "N/A"
+            
         }
     if latest_metrics['time_stamp'] != "N/A": # If a timestamp is available
         timestamp_value = datetime.fromisoformat(latest_metrics['time_stamp']) # Convert the timestamp to a datetime object
@@ -75,12 +86,23 @@ def metrics():
         memory_info = latest_metrics['memory_info'],
         disk_info = latest_metrics['disk_info'],
         anomaly = int(current_anomaly_state),
-        time_stamp = timestamp_value
+        time_stamp = timestamp_value,
+        anomaly_cause = anomaly_cause,
+        anomaly_deviation = anomaly_deviation
     )
     
     database.add(metric_record) # Add the record to the database session
     database.commit() # Commit the changes to the database
     database.close() # Close the database session
+
+    if len(monitor.metrics) > 0:
+        data = [[m['cpu_usage'], m['memory_info'], m['disk_info']] for m in monitor.metrics]
+        means = np.mean(data, axis=0)
+        mean_cpu = means[0]
+        mean_memory = means[1]
+        mean_disk = means[2]
+    else:
+        mean_cpu = mean_memory = mean_disk = 0 
 
 
     return JSONResponse(content={ # Return the latest metrics and anomaly state
@@ -88,7 +110,12 @@ def metrics():
         "memory_info": latest_metrics['memory_info'],
         "disk_info": latest_metrics['disk_info'],
         "time_stamp": latest_metrics['time_stamp'],
-        "anomaly": current_anomaly_state
+        "anomaly": current_anomaly_state,
+        "anomaly_cause": anomaly_cause,
+        "anomaly_deviation": anomaly_deviation,
+        "mean_cpu_usage": mean_cpu,
+        "mean_memory_info": mean_memory,
+        "mean_disk_info": mean_disk
     })
     
 
@@ -106,7 +133,9 @@ def get_history(limit: int = 50, database: SessionLocal = Depends(get_database))
             "cpu_usage": metric.cpu_usage,
             "memory_info": metric.memory_info,
             "disk_info": metric.disk_info,
-            "anomaly": bool(metric.anomaly)
+            "anomaly": bool(metric.anomaly),
+            "anomaly_cause": metric.anomaly_cause,
+            "anomaly_deviation": metric.anomaly_deviation
         })
     return JSONResponse(content=history) # Return the history of metrics as a JSON response
 
@@ -129,7 +158,9 @@ def get_current_anomaly(database: Session = Depends(get_database)):
             "cpu_usage": latest_metric.cpu_usage,
             "memory_info": latest_metric.memory_info,
             "disk_info": latest_metric.disk_info,
-            "anomaly": bool(latest_metric.anomaly)
+            "anomaly": bool(latest_metric.anomaly),
+            "anomaly_cause": latest_metric.anomaly_cause,
+            "anomaly_deviation": latest_metric.anomaly_deviation
         })
     
 @app.get("/recent_anomalies")
@@ -144,7 +175,9 @@ def get_previous_anomalies(limit: int = 10, database: Session = Depends(get_data
             "cpu_usage": anomaly.cpu_usage,
             "memory_info": anomaly.memory_info,
             "disk_info": anomaly.disk_info,
-            "anomaly": bool(anomaly.anomaly)
+            "anomaly": bool(anomaly.anomaly),
+            "anomaly_cause": anomaly.anomaly_cause, 
+            "anomaly_deviation": anomaly.anomaly_deviation
         })
         
     return JSONResponse(content={"anomaly": prev}) # Returns the current anomaly state as a JSON response
@@ -163,7 +196,9 @@ def get_anomalies_history(limit: int = 50, database: Session = Depends(get_datab
             "cpu_usage": anomaly.cpu_usage,
             "memory_info": anomaly.memory_info,
             "disk_info": anomaly.disk_info,
-            "anomaly": bool(anomaly.anomaly)
+            "anomaly": bool(anomaly.anomaly),
+            "anomaly_cause": anomaly.anomaly_cause,
+            "anomaly_deviation": anomaly.anomaly_deviation
         })
     return JSONResponse(content=history) #Return the history of anomalies as a JSON response
 
@@ -181,7 +216,9 @@ def download_history(database: Session = Depends(get_database)):
             "cpu_usage": metric.cpu_usage,
             "memory_info": metric.memory_info,
             "disk_info": metric.disk_info,
-            "anomaly": bool(metric.anomaly)
+            "anomaly": bool(metric.anomaly),
+            "anomaly_cause": metric.anomaly_cause,
+            "anomaly_deviation": metric.anomaly_deviation
         })
     return JSONResponse(content=history) # Return the history of metrics as a JSON response
 

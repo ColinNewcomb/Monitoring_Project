@@ -10,11 +10,21 @@ function App() {
   return (
     <div className="dashboard">
       <h1>Monitoring Dashboard</h1>
-      <LiveChart />
-      <LiveMetrics />
-      <RecentAnomalies />
-      <DownloadButton />
-      <DownloadAnomalyHistory />
+      <div className="main-content">
+        <div className="left-panel">
+          <LiveMetrics />
+          <div className="button-container">
+            <DownloadButton />
+            <DownloadAnomalyHistory />
+          </div>
+        </div>
+        <div className="center-panel">
+          <LiveChart />
+        </div>
+        <div className="right-panel">
+          <RecentAnomalies />
+        </div>
+      </div>
     </div>
   );
 }

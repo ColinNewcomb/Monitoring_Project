@@ -3,12 +3,8 @@
   background: #1e1e1e;
   padding: 15px;
   border-radius: 8px;
-  width: fit-content;
-  max-width: 280px;
-  position: relative;
-  top: -690px;
-  left: 700px;
-  /* Removed margin auto, restored appropriate sizing */
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
 }
 
 .recent-anomalies ul {
@@ -17,8 +13,7 @@
 }
 
 .recent-anomalies li {
-  margin: 8px 0;
-  padding: 6px;
-  background: #2a2a2a;
-  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  padding: 0.3rem;
+  border-bottom: 1px solid #444;
 }

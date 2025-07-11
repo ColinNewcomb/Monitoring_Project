@@ -14,6 +14,8 @@ class SystemMetrics(Base):
     memory_info = Column(Float, nullable=False)
     disk_info = Column(Float, nullable=False)
     anomaly = Column(Boolean, default=False)
+    anomaly_cause = Column(String, nullable=True)
+    anomaly_deviation = Column(Float, nullable=True)
 
     # network_sent = Column(Float, nullable=True)
     # network_recv = Column(Float, nullable=True)

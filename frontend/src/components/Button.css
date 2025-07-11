@@ -1,22 +1,22 @@
-/* Button.css - Updated */
-.button-group {
+.button-group, .button-container {
   display: flex;
-  flex-direction: column;
   gap: 10px;
-  width: fit-content;
-  /* Removed absolute positioning */
 }
 
-.button-group button {
-  background-color: #1e90ff;
-  color: white;
+.button-container button {
+  flex: none; /* Don't grow or shrink */
+  width: 160px; /* Fixed width for all buttons */
+  white-space: nowrap;
+  padding: 8px 12px;
   border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
+  border-radius: 4px;
+  background-color: #4d5b9e;
+  color: white;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
+  text-align: center; /* Ensure text is centered */
 }
 
-.button-group button:hover {
-  background-color: #3aa0ff;
+.button-container button:hover {
+  background-color: #3a467c;
 }

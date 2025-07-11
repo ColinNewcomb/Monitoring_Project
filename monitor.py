@@ -3,7 +3,7 @@ import collections
 from data_collector import get_system_metrics
 import anomaly_detector
 
-window_size = 60 # Default Window Size
+window_size = 10 # Default Window Size
 class Monitor:
     def __init__(self):
         self.metrics = collections.deque(maxlen=window_size) # Deque to store metrics with a fixed size

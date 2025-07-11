@@ -1,7 +1,7 @@
 import React from 'react';
 
 function DownloadAnomalyHistory() {
-    const handlowDownload = async () => {
+    const handleDownload = async () => {
         try {
             const response = await fetch('http://localhost:8000/anomalies/history');
             const data = await response.json();
@@ -22,8 +22,8 @@ function DownloadAnomalyHistory() {
         };
 
         return (
-            <div className="button-group">
-                <button onClick={handlowDownload}>
+            <div>
+                <button onClick={handleDownload}>
                     Download Anomaly History
                 </button>
             </div>

@@ -1,16 +1,43 @@
-/* LiveMetrics.css - Updated */
 .metrics-box {
   background: #1e1e1e;
-  padding: 15px;
-  border-radius: 8px;
-  width: fit-content;
+  padding: 24px;
+  border-radius: 12px;
   text-align: left;
-  position: relative;
-  top: -488px;
-    left: 100px; /* Adjusted for better visibility */
-  /* Removed absolute positioning and margin auto */
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
 }
 
 .metrics-box p {
   margin: 5px 0;
+}
+.anomaly-highlight {
+  color: #ff3333;
+  font-weight: bold;
+}
+
+.metrics-columns {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 16px;
+}
+
+.metrics-left,
+.metrics-right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.live-metrics-header {
+  font-size: 1.5em;
+  color: #ffffff;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.anomaly-status {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 1.1rem;
 }
