@@ -1,0 +1,16 @@
+/* LiveMetrics.css - Updated */
+.metrics-box {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 8px;
+  width: fit-content;
+  text-align: left;
+  position: relative;
+  top: -488px;
+    left: 100px; /* Adjusted for better visibility */
+  /* Removed absolute positioning and margin auto */
+}
+
+.metrics-box p {
+  margin: 5px 0;
+}

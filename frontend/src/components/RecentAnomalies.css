@@ -1,23 +1,24 @@
+/* RecentAnomalies.css - Updated */
 .recent-anomalies {
-  background-color: #222;
-  color: #fff;
-  padding: 1rem;
+  background: #1e1e1e;
+  padding: 15px;
   border-radius: 8px;
-  max-height: 300px;
-  overflow-y: auto; /* enables scrolling if list grows */
-}
-
-.recent-anomalies h3 {
-  margin-top: 0;
+  width: fit-content;
+  max-width: 280px;
+  position: relative;
+  top: -690px;
+  left: 700px;
+  /* Removed margin auto, restored appropriate sizing */
 }
 
 .recent-anomalies ul {
   list-style-type: none;
-  padding-left: 0;
+  padding: 0;
 }
 
 .recent-anomalies li {
-  margin-bottom: 0.5rem;
-  padding: 0.3rem;
-  border-bottom: 1px solid #444;
+  margin: 8px 0;
+  padding: 6px;
+  background: #2a2a2a;
+  border-radius: 4px;
 }

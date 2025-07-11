@@ -22,7 +22,7 @@ function DownloadAnomalyHistory() {
         };
 
         return (
-            <div>
+            <div className="button-group">
                 <button onClick={handlowDownload}>
                     Download Anomaly History
                 </button>

@@ -133,7 +133,7 @@ def get_current_anomaly(database: Session = Depends(get_database)):
         })
     
 @app.get("/recent_anomalies")
-def get_previous_anomalies(limit: int = 5, database: Session = Depends(get_database)):
+def get_previous_anomalies(limit: int = 10, database: Session = Depends(get_database)):
     
     anomalies = database.query(SystemMetrics).filter(SystemMetrics.anomaly == True).order_by(SystemMetrics.time_stamp.desc()).limit(limit).all()
     

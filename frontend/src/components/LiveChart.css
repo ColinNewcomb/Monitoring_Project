@@ -1,9 +1,12 @@
-.live-chart-container {
-  width: 800px;
-  height: 400px;
-}
+/* LiveChart.css - Updated */
 .chart-container {
-    position: absolute;
-    top: 0px;
-    left: 50px;
+  width: 800px;
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+  position: relative;
+  top: 15px; /* Adjusted for better visibility */
+  left: -475px; /* Adjusted for better visibility */
+  /* Removed absolute positioning */
 }

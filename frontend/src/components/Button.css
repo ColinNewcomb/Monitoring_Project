@@ -1,0 +1,22 @@
+/* Button.css - Updated */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: fit-content;
+  /* Removed absolute positioning */
+}
+
+.button-group button {
+  background-color: #1e90ff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button-group button:hover {
+  background-color: #3aa0ff;
+}

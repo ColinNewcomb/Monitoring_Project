@@ -1,30 +1,20 @@
 import React from "react";
 import "./App.css";
-import AnomalyStatus from "./components/AnomalyStatus";
 import LiveMetrics from "./components/LiveMetrics";
-import DownloadButton from "./components/DownloadButton";
-import DownloadAnomalyHistory from "./components/DownloadAnomalyHistory";
 import LiveChart from "./components/LiveChart";
 import RecentAnomalies from "./components/RecentAnomalies";
+import DownloadButton from "./components/DownloadButton";
+import DownloadAnomalyHistory from "./components/DownloadAnomalyHistory";
 
 function App() {
   return (
-    <div className="App">
+    <div className="dashboard">
       <h1>Monitoring Dashboard</h1>
-      <AnomalyStatus />
+      <LiveChart />
       <LiveMetrics />
+      <RecentAnomalies />
       <DownloadButton />
       <DownloadAnomalyHistory />
-      <LiveChart />
-      <RecentAnomalies />
-      
-      {/* DownloadButton component can be added here if needed */}
-      {/* <DownloadButton /> */}
-      {/* Add more components as needed */}
-      {/* You can add more components here as needed */}
-      {/* Add more components later */}
-      {/* You can add more components here as needed */}
-      {/* Add more components later */}
     </div>
   );
 }

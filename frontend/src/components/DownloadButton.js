@@ -22,7 +22,7 @@ function DownloadButton() {
     };
 
     return (
-        <div>
+        <div className ="button-group">
             <button onClick={handleDownload}>
                 Download Metrics History
             </button>
