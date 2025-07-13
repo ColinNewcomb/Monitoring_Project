@@ -1,5 +1,4 @@
 import collections
-
 from sklearn import metrics
 import monitor
 import time
@@ -7,7 +6,7 @@ from sklearn.ensemble import IsolationForest
 import numpy as np
 
 class AnomalyDetector:
-    def __init__(self,contaminatin=0.05):
+    def __init__(self,contaminatin=0.03):
         self.model = IsolationForest(contamination=contaminatin)  # Initialize the Isolation Forest model
         self.trained  = False  # Flag to check if the model is trained
         

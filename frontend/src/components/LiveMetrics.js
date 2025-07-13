@@ -59,7 +59,18 @@ function LiveMetrics() {
       </div>
     </div>
     <p className={`anomaly-status ${Anomaly ? "anomaly-detected" : ""}`}>
-      {Anomaly ? "Anomaly Detected!" : "Everything is normal."}
+      <p className={`anomaly-status ${Anomaly ? "anomaly-detected" : ""}`}>
+  {Anomaly ? (
+    <>
+      <span role="img" aria-label="warning">⚠️</span> Anomaly Detected! <span role="img" aria-label="warning">⚠️</span>
+      <br />
+      {anomaly_cause && <span className="anomaly-detail">Issue with {anomaly_cause.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>}
+      {anomaly_deviation && <span className="anomaly-detail"> (Deviation: {anomaly_deviation.toFixed(2)})</span>}
+    </>
+  ) : (
+    "Everything is normal."
+  )}
+    </p>
     </p>
   </div>
 );

@@ -18,30 +18,18 @@ def get_system_metrics():
     #metrics['user_info'] = psutil.users() # List of users currently logged in
 
     return metrics
-
-
-def get_top_processes(n=5):
-    """Get the top N resource-consuming processes."""
-    
-    # Get processes sorted by CPU usage
-    processes_by_cpu = []
+'''
+def get_processes(n=5):
+    """Returns the top n CPU and Memory consuming processes."""
+    processes = []
     for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
         try:
-            proc_info = proc.info
-            processes_by_cpu.append(proc_info)
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
-    
-    # Sort by CPU usage
-    top_cpu_processes = sorted(processes_by_cpu, key=lambda p: p['cpu_percent'], reverse=True)[:n]
-    
-    # Sort by memory usage
-    top_mem_processes = sorted(processes_by_cpu, key=lambda p: p.get('memory_percent', 0), reverse=True)[:n]
-    
-    return {
-        'top_cpu_processes': [{'pid': p['pid'], 'name': p['name'], 'cpu_percent': p['cpu_percent']} 
-                             for p in top_cpu_processes],
-        'top_memory_processes': [{'pid': p['pid'], 'name': p['name'], 'memory_percent': p.get('memory_percent', 0)} 
-                                for p in top_mem_processes]
-    }
-
+            if proc.pid == 0:
+                continue
+            processes.append(proc.info)
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    # Sort by CPU usage and get the top n processes
+    processes.sort(key=lambda x: x['cpu_percent'], reverse=False)
+    return processes[:n]
+'''

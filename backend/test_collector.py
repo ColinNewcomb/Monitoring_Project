@@ -10,5 +10,5 @@ if __name__ == "__main__":
     print("Starting system monitor test...\n")
     for _ in range(10):  # Collect 10 samples, one per second
         metrics = get_system_metrics()
-        print(metrics)
+        #print(metrics)
         time.sleep(1)

@@ -5,9 +5,9 @@ import time
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
-from database import init_database
+from database.database import init_database
 from fastapi import Depends
-from database import SessionLocal, SystemMetrics
+from database.database import SessionLocal, SystemMetrics
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 import json
@@ -164,7 +164,7 @@ def get_current_anomaly(database: Session = Depends(get_database)):
         })
     
 @app.get("/recent_anomalies")
-def get_previous_anomalies(limit: int = 10, database: Session = Depends(get_database)):
+def get_previous_anomalies(limit: int = 8, database: Session = Depends(get_database)):
     
     anomalies = database.query(SystemMetrics).filter(SystemMetrics.anomaly == True).order_by(SystemMetrics.time_stamp.desc()).limit(limit).all()
     
@@ -234,3 +234,12 @@ def get_status():
     })
     
 #@app.get("/config")
+'''
+@app.get("/processes")
+def get_processes(n: int = 5, database: Session = Depends(get_database)):
+    """Retrieve the top n CPU and Memory consuming processes."""
+    processes = monitor.get_processes(n)
+    return JSONResponse(content={
+        "processes": processes
+    })
+'''

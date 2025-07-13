@@ -1,0 +1,22 @@
+FROM python:3.12.1
+
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+
+RUN mkdir -p database
+
+COPY . .
+
+# Make startup script executable
+COPY start.sh .
+RUN chmod +x start.sh
+
+ENV DATABASE_URL=/app/database/system_metrics.db
+ENV PORT=8000
+
+EXPOSE 8000
+
+# Use the startup script instead of directly running api_metrics.py
+CMD ["./start.sh"]
