@@ -1,6 +1,7 @@
 import psutil
 import datetime
 import time
+import platform 
 
 
 def get_system_metrics():
@@ -9,7 +10,11 @@ def get_system_metrics():
     metrics['time_stamp'] = datetime.datetime.now().isoformat() #ISO Formatted TimeStamp
     metrics['cpu_usage'] = psutil.cpu_percent(interval=1) # CPU usage percentage
     metrics['memory_info'] = psutil.virtual_memory().percent # Memory usage percentage
-    metrics['disk_info'] = psutil.disk_usage('C:\\').percent # Disk usage percentage
+    
+    if platform.system() == 'Windows':
+        metrics['disk_info'] = psutil.disk_usage('C:\\').percent
+    else:
+        metrics['disk_info'] = psutil.disk_usage('/').percent
     
     # Uncomment the following lines if you want to collect additional metrics
     #metrics['network_sent'] = psutil.net_io_counters().bytes_sent # Network bytes sent
