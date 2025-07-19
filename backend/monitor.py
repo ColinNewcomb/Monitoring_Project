@@ -1,3 +1,4 @@
+import os
 import time
 import collections
 from data_collector import get_system_metrics #get_processes
@@ -14,7 +15,7 @@ class Monitor:
         current_metrics = get_system_metrics() # Collect current metrics
         self.metrics.append(current_metrics) # Append to the deque, automatically removing oldest metrics if window size exceeded
         #print(f"[{len(self.metrics)}/{window_size}] Latest: {self.metrics[-1]}")
-
+        
 
     def get_metrics(self):
         return list(self.metrics) #Returns the collected metrics as a list

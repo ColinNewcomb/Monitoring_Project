@@ -11,6 +11,7 @@ from database.database import SessionLocal, SystemMetrics
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 import json
+import os
 
 init_database()  # Initialize the database
 app = FastAPI() # Create FastAPI app instance
@@ -243,3 +244,26 @@ def get_processes(n: int = 5, database: Session = Depends(get_database)):
         "processes": processes
     })
 '''
+@app.get("/debug-host-paths")
+def debug_host_paths():
+    """Check if host paths are accessible from the container"""
+    host_proc = os.environ.get('HOST_PROC', 'Not set')
+    host_rootfs = os.environ.get('HOST_ROOTFS', 'Not set')
+    
+    proc_exists = os.path.exists(host_proc) if host_proc != 'Not set' else False
+    rootfs_exists = os.path.exists(host_rootfs) if host_rootfs != 'Not set' else False
+    
+    proc_contents = []
+    if proc_exists:
+        try:
+            proc_contents = os.listdir(host_proc)[:5]  # First 5 items
+        except:
+            proc_contents = ["Error listing directory"]
+    
+    return {
+        "HOST_PROC": host_proc,
+        "HOST_PROC_exists": proc_exists,
+        "HOST_PROC_contents": proc_contents,
+        "HOST_ROOTFS": host_rootfs,
+        "HOST_ROOTFS_exists": rootfs_exists
+    }

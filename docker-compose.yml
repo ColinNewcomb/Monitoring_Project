@@ -1,20 +1,29 @@
-version: '3'
-
 services:
   backend:
     build: 
       context: ./backend
       dockerfile: Dockerfile.backend
+    networks: 
+      - app-network
     ports:
       - "8000:8000"
     volumes:
       - ./database:/app/database
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    environment:
+      - HOST_PROC=/host/proc
+      - HOST_ROOTFS=/rootfs
+      - HOST_SYS=/host/sys
     restart: always
     
   frontend:
     build: 
       context: ./frontend
       dockerfile: Dockerfile.frontend
+    networks:
+      - app-network
     ports:
       - "3000:80"
     depends_on:
